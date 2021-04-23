@@ -1,7 +1,10 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+
 #include<iostream>
 #include<vector>
+#include<cmath>
 #include"Graphics.h"
 
 
@@ -31,9 +34,10 @@ public:
 	class Ant
 	{
 	public:
-		Ant()
+		Ant(Graphics* Graphics)
 		{
-
+			graphics = Graphics;
+			heading = (float)(rand() % 628) / 100;
 		}
 
 		~Ant()
@@ -41,10 +45,12 @@ public:
 
 		}
 
+		Graphics* graphics;
+
 		uint8_t speed = 1;
 		float heading = 0; //heading in radians
-		float WalkCurveFactor = 0.01f;
-		vec2D Coordinates = { 50, 50 };
+		float WalkCurveFactor = 0.1f;
+		vec2D Coordinates = { 200, 500 };
 
 		void AntMove();
 	private:
@@ -73,9 +79,13 @@ public:
 
 	TileMap tileMap;
 
+	vector<Ant> Ants;
+
 	void MakeTileMap(uint16_t Width, uint16_t Height);
 
 	void drawTileMap();
+
+	void addAnt();
 	void drawAnts();
 
 private:

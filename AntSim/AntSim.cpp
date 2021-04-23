@@ -1,6 +1,5 @@
 #include "AntSim.h"
 
-
 Colony::Colony(Graphics* Graphics)
 {
 	graphics = Graphics;
@@ -29,20 +28,44 @@ void Colony::drawTileMap()
 		for (uint16_t y = 0; y <= tileMap.height; y++)
 		{
 			graphics->DrawRect(x * (TileSize.x + 1), y * (TileSize.y + 1), TileSize.x, TileSize.y);
-			//graphics->DrawRect(0, 0, 100, 200);
 		}
 	}
 };
 
-void Colony::drawAnts()
-{
-
-}
-
-
 void Colony::Ant::AntMove()
 {
-	Coordinates.x = speed * sin(heading);
-	Coordinates.x = speed * cos(heading);
-	heading += WalkCurveFactor;
+	if ((Coordinates.x + (speed * sin(heading))) > graphics->resolution.right || (Coordinates.x + (speed * sin(heading))) < 0)
+	{
+		heading += M_PI;
+	}
+	else
+	{
+		Coordinates.x += speed * sin(heading);
+	}
+
+	if ((Coordinates.y + (speed * cos(heading))) > graphics->resolution.bottom || (Coordinates.y + (speed * cos(heading))) < 0)
+	{
+		heading += M_PI;
+	}
+	else
+	{
+		Coordinates.y += speed * cos(heading);
+	}
+
+	heading += ((int8_t)(rand() % 3) - 1) * WalkCurveFactor;
+}
+
+void Colony::addAnt()
+{
+	Ant tempAnt = Ant(graphics);
+	Ants.push_back(tempAnt);
+}
+
+void Colony::drawAnts()
+{
+	for (uint32_t antID = 0; antID < Ants.size(); antID++)
+	{
+		graphics->DrawCircle(Ants[antID].Coordinates.x, Ants[antID].Coordinates.y, 1);
+		Ants[antID].AntMove();
+	}
 }

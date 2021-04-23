@@ -62,10 +62,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	colo.MakeTileMap(300, 300);
 
+	for (uint32_t i = 0; i < 2000; i++)
+	{
+		colo.addAnt();
+	}
+
 	while (!closeWindow)
 	{
 		graphics->BeginDraw();
-		colo.drawTileMap();
+		graphics->Clear();
+		colo.drawAnts();
 		graphics->EndDraw();
 	}
 
