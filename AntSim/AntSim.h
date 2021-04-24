@@ -5,6 +5,7 @@
 #include<iostream>
 #include<vector>
 #include<cmath>
+#include<thread>
 #include"Graphics.h"
 
 
@@ -122,9 +123,12 @@ public:
 
 	vector<Ant> Ants;
 
+	void simulateStep();
+
 	void MakeTileMap(uint16_t Width, uint16_t Height);
 
 	void drawTileMap();
+	void drawTileMapPartial(uint16_t xStart, uint16_t xEnd);
 
 	void addAnt();
 	void drawAnts();

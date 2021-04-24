@@ -1,8 +1,12 @@
+#define WIDTH 1024
+#define HEIGHT 800
+
 #include <Windows.h>
 #include "Graphics.h"
 #include "AntSim.h"
 #include <algorithm>
 #include <time.h>
+
 
 Graphics* graphics;
 bool closeWindow = false;
@@ -21,7 +25,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int nCmdShow)
 {
-	RECT resolution = { 0, 0, 1024, 800 };
+	RECT resolution = { 0, 0, WIDTH, HEIGHT };
 
 	//Window Setup
 	//=========================================================================================
@@ -40,7 +44,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 	RECT rect = resolution; //Drawing area
 	AdjustWindowRectEx(&rect, WS_OVERLAPPEDWINDOW, false, WS_EX_OVERLAPPEDWINDOW);	//Calculate window Size
 
-	HWND windowhandle = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"MainWindow", L"Sush3D", WS_OVERLAPPEDWINDOW, 100, 100, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, 0);
+	HWND windowhandle = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"MainWindow", L"AntSim", WS_OVERLAPPEDWINDOW, 100, 100, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, 0);
 	//=========================================================================================
 
 	if (!windowhandle)
@@ -70,17 +74,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 		colo.addAnt();
 	}
 
+	uint8_t frame = 0;
+
 	while (!closeWindow)
 	{
+		frame++;
 		if (PeekMessage(&message, windowhandle, 0, 0, PM_REMOVE))
 		{
 			DispatchMessage(&message);
 		}
-		graphics->BeginDraw();
-		graphics->Clear();
-		colo.drawAnts();
-		colo.drawTileMap();
-		graphics->EndDraw();
+		colo.simulateStep();
+		if (frame % 4)
+		{
+			graphics->BeginDraw();
+			//graphics->Clear();
+			colo.drawTileMap();
+			//colo.drawAnts();
+			graphics->EndDraw();
+			graphics->refresh();
+		}
 	}
 
 	delete graphics;

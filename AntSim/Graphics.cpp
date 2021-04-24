@@ -30,7 +30,7 @@ Graphics::~Graphics()
 
 bool Graphics::Init(HWND windowHandle, uint16_t width, uint16_t height)
 {
-	HRESULT res = D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &factory);
+	HRESULT res = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &factory);
 	if (res != S_OK)
 	{
 		return false;

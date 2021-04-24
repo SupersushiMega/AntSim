@@ -21,9 +21,9 @@ void Colony::MakeTileMap(uint16_t Width, uint16_t Height)
 void Colony::drawTileMap()
 {
 	vec2D TileSize;
-
 	TileSize.x = graphics->resolution.right / tileMap.width;
 	TileSize.y = graphics->resolution.bottom / tileMap.height;
+
 	for (uint16_t x = 0; x <= tileMap.width; x++)
 	{
 		for (uint16_t y = 0; y <= tileMap.height; y++)
@@ -31,13 +31,19 @@ void Colony::drawTileMap()
 			tile temp = tileMap.ReadMap(x, y);
 			if ((temp.FoodStrength || temp.HomeStrength))
 			{
-				graphics->setDrawColor(0.0f, temp.FoodStrength, temp.HomeStrength);
-				graphics->DrawRect(x * (TileSize.x + 1), y * (TileSize.y + 1), TileSize.x, TileSize.y);
-			}
-			if (temp.HomeStrength > 0)
-			{
-				temp.HomeStrength -= 0.02f;
-				tileMap.WriteToMap(x, y, temp);
+				for (uint16_t x2 = x * (TileSize.x + 1); x2 < (x + 1) * (TileSize.x + 1); x2++)
+				{
+					for (uint16_t y2 = y * (TileSize.y + 1); y2 < (y + 1) * (TileSize.y + 1); y2++)
+					{
+						Color PixCol = { 0.0f, temp.FoodStrength, temp.HomeStrength };
+						graphics->imageBuff.PutPix(x2, y2, PixCol);
+					}
+				}
+				if (temp.HomeStrength > 0)
+				{
+					temp.HomeStrength -= 0.02f;
+					tileMap.WriteToMap(x, y, temp);
+				}
 			}
 		}
 	}
@@ -88,6 +94,27 @@ void Colony::addAnt()
 {
 	Ant tempAnt = Ant(graphics, &tileMap);
 	Ants.push_back(tempAnt);
+}
+
+void Colony::simulateStep()
+{
+	for (uint32_t antID = 0; antID < Ants.size(); antID++)
+	{
+		Ants[antID].placePheromone();
+		Ants[antID].AntMove();
+	}
+	for (uint16_t x = 0; x <= tileMap.width; x++)
+	{
+		for (uint16_t y = 0; y <= tileMap.height; y++)
+		{
+			tile temp = tileMap.ReadMap(x, y);
+			if (temp.HomeStrength > 0)
+			{
+				temp.HomeStrength -= 0.02f;
+				tileMap.WriteToMap(x, y, temp);
+			}
+		}
+	}
 }
 
 void Colony::drawAnts()
