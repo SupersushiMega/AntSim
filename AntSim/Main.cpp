@@ -69,7 +69,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	colo.MakeTileMap(1024, 800);
 
-	for (uint32_t i = 0; i < 2000; i++)
+	for (uint32_t i = 0; i < 200; i++)
 	{
 		colo.addAnt();
 	}
@@ -86,14 +86,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 			DispatchMessage(&message);
 		}
 		colo.simulateStep();
-		if (frame % 4)
+		if (1)
 		{
-			graphics->BeginDraw();
 			//graphics->Clear();
 			colo.drawTileMap();
-			graphics->DrawLine(0, 128, 1, frame, col);
-			//colo.drawAnts();
-			graphics->EndDraw();
 			graphics->refresh();
 		}
 	}

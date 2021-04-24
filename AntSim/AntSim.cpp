@@ -35,14 +35,9 @@ void Colony::drawTileMap()
 				{
 					for (uint16_t y2 = y * (TileSize.y + 1); y2 < (y + 1) * (TileSize.y + 1); y2++)
 					{
-						Color PixCol = { 0.0f, temp.FoodStrength, temp.HomeStrength };
+						Color PixCol = { 0.0f, temp.FoodStrength, temp.HomeStrength};
 						graphics->imageBuff.PutPix(x2, y2, PixCol);
 					}
-				}
-				if (temp.HomeStrength > 0.00f)
-				{
-					temp.HomeStrength -= 0.02f;
-					tileMap.WriteToMap(x, y, temp);
 				}
 			}
 		}
@@ -90,6 +85,38 @@ void Colony::Ant::placePheromone()
 	}
 }
 
+void Colony::Ant::checkArea()
+{
+	uint8_t r = 0;
+	float angle = 0;
+
+	tile temp1;
+	temp1.FoodStrength = 1;
+
+	tile temp2;
+	temp2.HomeStrength = 1;
+
+	tile temp;
+
+	for (r = 1; r < viewDistance + 1; r++)
+	{
+		for (angle = -((float)FOV / 2); angle < ((float)FOV / 2); angle += 0.1f)
+		{
+			temp = tilemap->ReadMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r));	//read data
+			if (angle < 0)
+			{
+				heading -= 0.02f * temp.HomeStrength;
+				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
+			}
+			else
+			{
+				heading += 0.02f * temp.HomeStrength;
+				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
+			}
+		}
+	}
+}
+
 void Colony::addAnt()
 {
 	Ant tempAnt = Ant(graphics, &tileMap);
@@ -100,6 +127,7 @@ void Colony::simulateStep()
 {
 	for (uint32_t antID = 0; antID < Ants.size(); antID++)
 	{
+		Ants[antID].checkArea();
 		Ants[antID].placePheromone();
 		Ants[antID].AntMove();
 	}
@@ -110,19 +138,11 @@ void Colony::simulateStep()
 			tile temp = tileMap.ReadMap(x, y);
 			if (temp.HomeStrength > 0)
 			{
-				temp.HomeStrength -= 0.02f;
+				temp.HomeStrength -= 0.001f;
 				tileMap.WriteToMap(x, y, temp);
 			}
 		}
 	}
 }
 
-void Colony::drawAnts()
-{
-	for (uint32_t antID = 0; antID < Ants.size(); antID++)
-	{
-		graphics->setDrawColor(1, 1, 1);
-		Ants[antID].placePheromone();
-		Ants[antID].AntMove();
-	}
-}
+

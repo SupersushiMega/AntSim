@@ -84,7 +84,18 @@ public:
 
 			TileSize.x = graphics->resolution.right / width + 1;
 			TileSize.y = graphics->resolution.bottom / height + 1;
-			return Ptr[(uint16_t)(x / TileSize.x) + (width * (uint16_t)(y / TileSize.y))];
+
+			uint16_t mapX = (uint16_t)(x / TileSize.x);
+			uint16_t mapY = (uint16_t)(y / TileSize.y);
+			if ((mapY > 0) && (mapY < height) && (mapX > 0) && (mapX < width))
+			{
+				return Ptr[mapX + (width * mapY)];
+			}
+			else
+			{
+				tile temp;
+				return temp;
+			}
 		};
 	};
 
@@ -107,15 +118,19 @@ public:
 		Graphics* graphics;
 		TileMap* tilemap;
 
+		uint8_t viewDistance = 20;
+		float FOV = M_PI / 1.3f;	//FOV of ant in radians
+		float WalkCurveFactor = 0.1f;
+
 		uint8_t state = SCOUTING;
 
 		uint8_t speed = 1;
 		float heading = 0; //heading in radians
-		float WalkCurveFactor = 0.1f;
-		vec2D Coordinates = { 0, 0 };
+		vec2D Coordinates = { (float)(rand()%1024), (float)(rand() % 800) };
 
 		void AntMove();
 		void placePheromone();
+		void checkArea();
 
 	private:
 
@@ -130,7 +145,6 @@ public:
 	void drawTileMap();
 
 	void addAnt();
-	void drawAnts();
 
 private:
 
