@@ -31,15 +31,18 @@ public:
 		rendertarget->EndDraw();
 	}
 
+	void setDrawColor(float r, float g, float b)
+	{
+		Solidbrush->SetColor(D2D1::ColorF(r, g, b));
+	}
+
 	void DrawRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 	{
-		Solidbrush->SetColor(D2D1::ColorF(1.0f, 0.0f, 0.0f));
-		rendertarget->DrawRectangle(D2D1::RectF(x, y, width, height), Solidbrush);
+		rendertarget->DrawRectangle(D2D1::RectF(x, y, x + width, y + height), Solidbrush);
 	}
 
 	void DrawCircle(uint16_t x, uint16_t y, uint16_t r)
 	{
-		Solidbrush->SetColor(D2D1::ColorF(1.0f, 0.0f, 0.0f));
 		rendertarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2(x, y), r, r), Solidbrush);
 	}
 

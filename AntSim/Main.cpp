@@ -50,6 +50,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	graphics = new Graphics();
 
+	MSG message;
+	message.message = WM_NULL;
+
 	if (!graphics->Init(windowhandle, resolution.right, resolution.bottom))
 	{
 		delete graphics;
@@ -60,7 +63,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	Colony colo = Colony(graphics);
 
-	colo.MakeTileMap(300, 300);
+	colo.MakeTileMap(1024, 800);
 
 	for (uint32_t i = 0; i < 2000; i++)
 	{
@@ -69,9 +72,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	while (!closeWindow)
 	{
+		if (PeekMessage(&message, windowhandle, 0, 0, PM_REMOVE))
+		{
+			DispatchMessage(&message);
+		}
 		graphics->BeginDraw();
 		graphics->Clear();
 		colo.drawAnts();
+		colo.drawTileMap();
 		graphics->EndDraw();
 	}
 
