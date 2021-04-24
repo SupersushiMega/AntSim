@@ -67,5 +67,30 @@ bool Graphics::Init(HWND windowHandle, uint16_t width, uint16_t height)
 
 	systemInfo = sysInfoTemp;
 
+	imageBuff.resize(width, height);
+
 	return true;
+}
+
+void Graphics::ImageBuff::PutPix(uint16_t x, uint16_t y, Color col)
+{
+	//Convert Color
+	//==========================================================================================================================
+	uint32_t buffer = 0;
+	if (col.b > 0.0f)
+	{
+		buffer |= (uint32_t)(col.b * 255);
+	}
+
+	if (col.g > 0.0f)
+	{
+		buffer |= ((uint32_t)(col.g * 255) << 8);
+	}
+
+	if (col.r > 0.0f)
+	{
+		buffer |= ((uint32_t)(col.r * 255) << 16);
+	}
+	//==========================================================================================================================
+	PixelsPtr[x + (y * width)] = buffer;
 }

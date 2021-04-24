@@ -29,7 +29,7 @@ void Colony::drawTileMap()
 		for (uint16_t y = 0; y <= tileMap.height; y++)
 		{
 			tile temp = tileMap.ReadMap(x, y);
-			if ((temp.FoodStrength || temp.HomeStrength))
+			if ((temp.FoodStrength > 0) || (temp.HomeStrength > 0))
 			{
 				for (uint16_t x2 = x * (TileSize.x + 1); x2 < (x + 1) * (TileSize.x + 1); x2++)
 				{
@@ -39,7 +39,7 @@ void Colony::drawTileMap()
 						graphics->imageBuff.PutPix(x2, y2, PixCol);
 					}
 				}
-				if (temp.HomeStrength > 0)
+				if (temp.HomeStrength > 0.00f)
 				{
 					temp.HomeStrength -= 0.02f;
 					tileMap.WriteToMap(x, y, temp);
@@ -122,7 +122,6 @@ void Colony::drawAnts()
 	for (uint32_t antID = 0; antID < Ants.size(); antID++)
 	{
 		graphics->setDrawColor(1, 1, 1);
-		graphics->DrawCircle(Ants[antID].Coordinates.x, Ants[antID].Coordinates.y, 1);
 		Ants[antID].placePheromone();
 		Ants[antID].AntMove();
 	}

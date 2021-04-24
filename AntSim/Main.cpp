@@ -76,6 +76,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	uint8_t frame = 0;
 
+	Color col = { 1.0f, 1.0f, 1.0f };
+
 	while (!closeWindow)
 	{
 		frame++;
@@ -89,6 +91,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 			graphics->BeginDraw();
 			//graphics->Clear();
 			colo.drawTileMap();
+			graphics->DrawLine(0, 128, 1, frame, col);
 			//colo.drawAnts();
 			graphics->EndDraw();
 			graphics->refresh();

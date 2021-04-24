@@ -128,7 +128,6 @@ public:
 	void MakeTileMap(uint16_t Width, uint16_t Height);
 
 	void drawTileMap();
-	void drawTileMapPartial(uint16_t xStart, uint16_t xEnd);
 
 	void addAnt();
 	void drawAnts();

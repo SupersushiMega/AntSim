@@ -27,7 +27,6 @@ public:
 			width = Width;
 			height = Height;
 			PixelsPtr = new uint32_t[width * height];
-			SecPixelsPtr = new uint32_t[width * height];
 		}
 
 		~ImageBuff()
@@ -36,27 +35,23 @@ public:
 			PixelsPtr = nullptr;
 		}
 
-		void PutPix(uint16_t x, uint16_t y, Color col)
+		void resize(uint16_t Width, uint16_t Height)
 		{
-			//Convert Color
-			//==========================================================================================================================
-			uint32_t buffer = 0;
-			buffer |= (uint32_t)(col.b * 255);
-			buffer |= ((uint32_t)(col.g * 255) << 8);
-			buffer |= ((uint32_t)(col.r * 255) << 16);
-			//==========================================================================================================================
-			PixelsPtr[x + (y * width)] = buffer;
+			width = Width;
+			height = Height;
+			PixelsPtr = new uint32_t[width * height];
 		}
+
+		void PutPix(uint16_t x, uint16_t y, Color col);
 
 		Color GetPix(uint16_t& x, uint16_t& y);
 
 		uint32_t* PixelsPtr = nullptr;	//Pointer for the list of pixels where the picture is being built
-		uint32_t* SecPixelsPtr = nullptr;	//pointer to the list of pixels which are used in the refresh process
 		uint16_t width = 0;
 		uint16_t height = 0;
 	};
 
-	ImageBuff imageBuff = ImageBuff(1024, 800);
+	ImageBuff imageBuff = ImageBuff(1, 1);
 	RECT resolution;
 
 	bool Init(HWND windowHandle, uint16_t width, uint16_t height);
@@ -76,30 +71,66 @@ public:
 		Solidbrush->SetColor(D2D1::ColorF(r, g, b));
 	}
 
-	void DrawRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+	void DrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, Color col)
 	{
-		rendertarget->DrawRectangle(D2D1::RectF(x, y, x + width, y + height), Solidbrush);
-	}
+		uint16_t buffer = 0;
+		float yDelta = 0;
+		uint16_t y = 0;
+		float yLast = 0;
 
-	void DrawLine(uint16_t startX, uint16_t startY, uint16_t endX, uint16_t endY)
-	{
-		rendertarget->DrawLine(D2D1::Point2F(startX, startY), D2D1::Point2F(endX, endY), Solidbrush);
-	}
+		if (x1 > x2)	//check if x1 is larger than x2;
+		{
+			//Swap x1 with x2
+			//==========================================================================================================================
+			buffer = x1;
+			x1 = x2;
+			x2 = buffer;
+			//==========================================================================================================================
 
-	void DrawCircle(uint16_t x, uint16_t y, uint16_t r)
-	{
-		rendertarget->DrawEllipse(D2D1::Ellipse(D2D1::Point2(x, y), r, r), Solidbrush);
-	}
+			//Swap y1 with y2
+			//==========================================================================================================================
+			buffer = y1;
+			y1 = y2;
+			y2 = buffer;
+			//==========================================================================================================================
+		}
 
-	void Clear()
-	{
-		Solidbrush->SetColor(D2D1::ColorF(0.0f, 0.0f, 0.0f));
-		rendertarget->FillRectangle(D2D1::RectF(0, 0, resolution.right, resolution.bottom), Solidbrush);
-	}
-	void ClearPartial(uint16_t xStart, uint16_t xEnd)
-	{
-		Solidbrush->SetColor(D2D1::ColorF(0.0f, 0.0f, 0.0f));
-		rendertarget->FillRectangle(D2D1::RectF(xStart, 0, xEnd, resolution.bottom), Solidbrush);
+		yDelta = (float)(y2 - y1) / (x2 - x1);	//calculate slope of line
+		
+		y = 0;
+		yLast = y1;
+
+		for (uint16_t x = x1; x <= x2; x++)
+		{
+			if (y1 < y2)
+			{
+				for (y = yLast; y < (yLast + yDelta); y++)
+				{
+					imageBuff.PutPix(x, y, col);
+				}
+			}
+			else if (y1 > y2)
+			{
+				if (yLast == y2)	//Check if yLast is equal to y2 to ensure no crashes happen
+				{
+					imageBuff.PutPix(x, yLast, col);
+				}
+				else
+				{
+					for (y = yLast; y >= (yLast + yDelta); y--)
+					{
+						imageBuff.PutPix(x, y, col);
+					}
+					imageBuff.PutPix(x, y, col);
+				}
+			}
+			else
+			{
+				y = yLast;
+				imageBuff.PutPix(x, y, col);
+			}
+			yLast += yDelta;
+		}
 	}
 
 	void refresh()
