@@ -45,6 +45,8 @@ public:
 		uint16_t height = 0;
 		Graphics* graphics = nullptr;
 
+		float pheromonDegration = 0.002f;	//the speed at which pheromons degrade
+
 		TileMap()
 		{
 
@@ -56,6 +58,7 @@ public:
 
 			Ptr = nullptr;
 		}
+
 
 		void WriteToMap(uint16_t x, uint16_t y, tile Tile)	//write to tilemap using map coordinates
 		{
@@ -120,13 +123,14 @@ public:
 
 		uint8_t viewDistance = 20;
 		float FOV = M_PI / 1.3f;	//FOV of ant in radians
-		float WalkCurveFactor = 0.1f;
+		float WalkCurveFactor = 0.2f;
+		float pheromonAttraction = 0.005f;	//how strong the ant turns when it detects pheromons
 
 		uint8_t state = SCOUTING;
 
 		uint8_t speed = 1;
 		float heading = 0; //heading in radians
-		vec2D Coordinates = { (float)(rand()%1024), (float)(rand() % 800) };
+		vec2D Coordinates = { 512, 400 };
 
 		void AntMove();
 		void placePheromone();

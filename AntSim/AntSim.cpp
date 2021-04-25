@@ -64,7 +64,7 @@ void Colony::Ant::AntMove()
 		Coordinates.y += speed * cos(heading);
 	}
 
-	heading += ((int8_t)(rand() % 3) - 1) * WalkCurveFactor;
+	heading += ((float)((rand() % 200)/100) - 1) * WalkCurveFactor;
 }
 
 void Colony::Ant::placePheromone()
@@ -98,19 +98,19 @@ void Colony::Ant::checkArea()
 
 	tile temp;
 
-	for (r = 1; r < viewDistance + 1; r++)
+	for (r = 4; r < viewDistance + 4; r++)
 	{
 		for (angle = -((float)FOV / 2); angle < ((float)FOV / 2); angle += 0.1f)
 		{
 			temp = tilemap->ReadMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r));	//read data
 			if (angle < 0)
 			{
-				heading -= 0.02f * temp.HomeStrength;
+				heading -= pheromonAttraction * temp.HomeStrength;
 				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
 			}
 			else
 			{
-				heading += 0.02f * temp.HomeStrength;
+				heading += pheromonAttraction * temp.HomeStrength;
 				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
 			}
 		}
@@ -138,7 +138,7 @@ void Colony::simulateStep()
 			tile temp = tileMap.ReadMap(x, y);
 			if (temp.HomeStrength > 0)
 			{
-				temp.HomeStrength -= 0.001f;
+				temp.HomeStrength -= tileMap.pheromonDegration;
 				tileMap.WriteToMap(x, y, temp);
 			}
 		}

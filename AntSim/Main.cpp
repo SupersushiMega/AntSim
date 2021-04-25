@@ -2,10 +2,11 @@
 #define HEIGHT 800
 
 #include <Windows.h>
-#include "Graphics.h"
-#include "AntSim.h"
 #include <algorithm>
 #include <time.h>
+#include "Graphics.h"
+#include "AntSim.h"
+#include "Perlin.h"
 
 
 Graphics* graphics;
@@ -69,14 +70,34 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	colo.MakeTileMap(1024, 800);
 
-	for (uint32_t i = 0; i < 200; i++)
+	for (uint32_t i = 0; i < 2000; i++)
 	{
 		colo.addAnt();
 	}
 
 	uint8_t frame = 0;
 
-	Color col = { 1.0f, 1.0f, 1.0f };
+	Color col = { 0.0f, 0.0f, 0.0f };
+
+	Perlin2D perlin(1024,800);
+	while (1)
+	{
+		//for (uint32_t i = 0; i < perlin.length; i++)
+		//{
+		//	perlin.seed[i] = (float)(rand()) / (float)RAND_MAX;
+		//}
+		perlin.generateNoise(24, 1.6f);
+
+		for (uint16_t x = 0; x < 1024; x++)
+		{
+			for (uint16_t y = 0; y < 800; y++)
+			{
+				col.r = perlin.noise[x + (y * perlin.width)];
+				graphics->imageBuff.PutPix(x, y, col);
+			}
+		}
+		graphics->refresh();
+	}
 
 	while (!closeWindow)
 	{
