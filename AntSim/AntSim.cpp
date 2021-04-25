@@ -1,8 +1,10 @@
 #include "AntSim.h"
 
-Colony::Colony(Graphics* Graphic)
+Colony::Colony(Graphics* Graphic, uint16_t x, uint16_t y)
 {
 	graphics = Graphic;
+	colonyX = x;
+	colonyY = y;
 };
 
 Colony::~Colony()
@@ -29,19 +31,16 @@ void Colony::drawTileMap()
 		for (uint16_t y = 0; y <= tileMap.height; y++)
 		{
 			tile temp = tileMap.ReadMap(x, y);
-			if ((temp.FoodStrength > 0) || (temp.HomeStrength > 0) || temp.type != EMPTY)
+			for (uint16_t x2 = x * (TileSize.x + 1); x2 < (x + 1) * (TileSize.x + 1); x2++)
 			{
-				for (uint16_t x2 = x * (TileSize.x + 1); x2 < (x + 1) * (TileSize.x + 1); x2++)
+				for (uint16_t y2 = y * (TileSize.y + 1); y2 < (y + 1) * (TileSize.y + 1); y2++)
 				{
-					for (uint16_t y2 = y * (TileSize.y + 1); y2 < (y + 1) * (TileSize.y + 1); y2++)
+					Color PixCol = { temp.FoodStrength, 0.0f, temp.HomeStrength};
+					if (temp.type == FOOD)
 					{
-						Color PixCol = { temp.FoodStrength, 0.0f, temp.HomeStrength};
-						if (temp.type = FOOD);
-						{
-							PixCol.g = 0.5f;
-						}
-						graphics->imageBuff.PutPix(x2, y2, PixCol);
+						PixCol.g = 0.5f;
 					}
+					graphics->imageBuff.PutPix(x2, y2, PixCol);
 				}
 			}
 		}
@@ -68,7 +67,7 @@ void Colony::Ant::AntMove()
 		Coordinates.y += speed * cos(heading);
 	}
 
-	heading += ((float)((rand() % 200)/100) - 1) * WalkCurveFactor;
+	heading += ((float)((rand() % 299)/100) - 1) * WalkCurveFactor;
 }
 
 void Colony::Ant::placePheromone()
@@ -79,6 +78,13 @@ void Colony::Ant::placePheromone()
 		{
 			tile temp = tilemap->ReadMap_WC(Coordinates.x, Coordinates.y);
 			temp.HomeStrength = 1;
+			tilemap->WriteToMap_WC(Coordinates.x, Coordinates.y, temp);
+			break;
+		}
+		case TRANSPORTING_FOOD:
+		{
+			tile temp = tilemap->ReadMap_WC(Coordinates.x, Coordinates.y);
+			temp.FoodStrength = 1;
 			tilemap->WriteToMap_WC(Coordinates.x, Coordinates.y, temp);
 			break;
 		}
@@ -95,7 +101,7 @@ void Colony::Ant::checkArea()
 	float angle = 0;
 
 	tile temp1;
-	temp1.FoodStrength = 1;
+	temp1.HomeStrength = 1;
 
 	tile temp2;
 	temp2.HomeStrength = 1;
@@ -107,14 +113,49 @@ void Colony::Ant::checkArea()
 		for (angle = -((float)FOV / 2); angle < ((float)FOV / 2); angle += 0.1f)
 		{
 			temp = tilemap->ReadMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r));	//read data
+
 			if (angle < 0)
 			{
-				heading -= pheromonAttraction * temp.HomeStrength;
+				if (state == SCOUTING)
+				{
+					heading -= pheromonAttraction * temp.FoodStrength;
+					if (temp.type == FOOD)
+					{
+						state = TRANSPORTING_FOOD;
+						temp.type = EMPTY;
+						heading += M_PI;
+					}
+				}
+				else if (state == TRANSPORTING_FOOD)
+				{
+					if ((uint16_t)((Coordinates.x + (sin(angle + heading) * r)) == parentCol->colonyX) && (uint16_t)((Coordinates.y + (cos(angle + heading) * r)) == parentCol->colonyX))
+					{
+						state = SCOUTING;
+					}
+					heading -= pheromonAttraction * temp.HomeStrength;
+				}
 				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
 			}
 			else
 			{
-				heading += pheromonAttraction * temp.HomeStrength;
+				if (state == SCOUTING)
+				{
+					heading += pheromonAttraction * temp.FoodStrength;
+					if (temp.type == FOOD)
+					{
+						state = TRANSPORTING_FOOD;
+						temp.type = EMPTY;
+						heading += M_PI;
+					}
+				}
+				else if (state == TRANSPORTING_FOOD)
+				{
+					if ((uint16_t)((Coordinates.x + (sin(angle + heading) * r)) == parentCol->colonyX) && (uint16_t)((Coordinates.y + (cos(angle + heading) * r)) == parentCol->colonyX))
+					{
+						state = SCOUTING;
+					}
+					heading += pheromonAttraction * temp.HomeStrength;
+				}
 				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
 			}
 		}
@@ -123,7 +164,7 @@ void Colony::Ant::checkArea()
 
 void Colony::addAnt()
 {
-	Ant tempAnt = Ant(graphics, &tileMap);
+	Ant tempAnt = Ant(graphics, &tileMap, this, colonyX, colonyY);
 	Ants.push_back(tempAnt);
 }
 

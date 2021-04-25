@@ -31,11 +31,13 @@ struct tile
 class Colony
 {
 public:
-	Colony(Graphics* Graphic);
+	Colony(Graphics* Graphic, uint16_t x, uint16_t y);
 
 	~Colony();
 
 	Graphics* graphics;
+	uint16_t colonyY;
+	uint16_t colonyX;
 
 	class TileMap
 	{
@@ -70,7 +72,14 @@ public:
 
 			TileSize.x = graphics->resolution.right / width + 1;
 			TileSize.y = graphics->resolution.bottom / height + 1;
-			Ptr[(uint16_t)(x / TileSize.x) + (width * (uint16_t)(y / TileSize.y))] = Tile;
+
+			uint16_t mapX = (uint16_t)(x / TileSize.x);
+			uint16_t mapY = (uint16_t)(y / TileSize.y);
+
+			if ((mapY > 0) && (mapY < height) && (mapX > 0) && (mapX < width))
+			{
+				Ptr[mapX + (width * mapY)] = Tile;
+			}
 		};
 
 		tile ReadMap(uint16_t x, uint16_t y)	//write from tilemap using map coordinates
@@ -107,10 +116,13 @@ public:
 	class Ant
 	{
 	public:
-		Ant(Graphics* Graphic, TileMap* Tilemap)
+		Ant(Graphics* Graphic, TileMap* Tilemap, Colony* ParentCol, uint16_t x, uint16_t y)
 		{
 			graphics = Graphic;
 			tilemap = Tilemap;
+			parentCol = ParentCol;
+			Coordinates.x = x;
+			Coordinates.y = y;
 			heading = (float)(rand() % 628) / 100;	//create random start heading
 		}
 
@@ -118,19 +130,21 @@ public:
 		{
 
 		}
+		
 		Graphics* graphics;
 		TileMap* tilemap;
+		Colony* parentCol;
 
-		uint8_t viewDistance = 20;
+		uint8_t viewDistance = 4;
 		float FOV = M_PI / 1.3f;	//FOV of ant in radians
-		float WalkCurveFactor = 0.2f;
+		float WalkCurveFactor = 0.1f;
 		float pheromonAttraction = 0.005f;	//how strong the ant turns when it detects pheromons
 
 		uint8_t state = SCOUTING;
 
 		uint8_t speed = 1;
 		float heading = 0; //heading in radians
-		vec2D Coordinates = { 512, 400 };
+		vec2D Coordinates = { 0, 0 };
 
 		void AntMove();
 		void placePheromone();

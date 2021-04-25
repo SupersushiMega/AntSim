@@ -66,11 +66,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	ShowWindow(windowhandle, nCmdShow);
 
-	Colony colo = Colony(graphics);
+	Colony colo = Colony(graphics, 512, 400);
 
-	colo.MakeTileMap(512, 400);
+	colo.MakeTileMap(1024, 800);
 
-	for (uint32_t i = 0; i < 2000; i++)
+	for (uint32_t i = 0; i < 1; i++)
 	{
 		colo.addAnt();
 	}
@@ -97,7 +97,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 		for (uint16_t y = 0; y < 800; y++)
 		{
 			float value = perlin.noise[x + (y * perlin.width)];
-			if(value > 0.5f)
+			if(value > 0.7f)
 			{
 				tile temp;
 				temp = colo.tileMap.ReadMap_WC(x, y);
