@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <algorithm>
 #include <time.h>
+#include <string>
 #include "Graphics.h"
 #include "AntSim.h"
 #include "Perlin.h"
@@ -91,7 +92,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 		for (uint16_t y = 0; y < 800; y++)
 		{
 			float value = perlin.noise[x + (y * perlin.width)];
-			if(value > 0.45f)
+			if(value > 0.4f)
 			{
 				tile temp;
 				temp = colo.tileMap.ReadMap_WC(x, y);
@@ -106,6 +107,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 		colo.addAnt();
 	}
 
+	uint32_t temp;
+
 	graphics->refresh();
 
 	while (!closeWindow)
@@ -116,6 +119,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 			DispatchMessage(&message);
 		}
 		colo.simulateStep();
+		temp = colo.Ants.capacity();
 		if (1)
 		{
 			//graphics->Clear();

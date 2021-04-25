@@ -40,6 +40,8 @@ public:
 	uint16_t colonyX;
 
 	uint8_t colonySize = 20;
+	
+	uint32_t food = 0;
 
 	class TileMap
 	{
@@ -103,13 +105,13 @@ public:
 
 		tile ReadMap_WC(float x, float y)	//read from tilemap using world coordinates
 		{
-			vec2D TileSize;
+			volatile vec2D TileSize;
 
 			TileSize.x = graphics->resolution.right / width + 1;
 			TileSize.y = graphics->resolution.bottom / height + 1;
 
-			uint16_t mapX = (uint16_t)(x / TileSize.x);
-			uint16_t mapY = (uint16_t)(y / TileSize.y);
+			volatile uint16_t mapX = (uint16_t)(x / TileSize.x);
+			volatile uint16_t mapY = (uint16_t)(y / TileSize.y);
 			if ((mapY > 0) && (mapY < height) && (mapX > 0) && (mapX < width))
 			{
 				return Ptr[mapX + (width * mapY)];
