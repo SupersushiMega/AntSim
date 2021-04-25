@@ -49,7 +49,8 @@ public:
 		uint16_t height = 0;
 		Graphics* graphics = nullptr;
 
-		float pheromonDegration = 0.0001f;	//the speed at which pheromons degrade
+		float HomeDegration = 0.001f;	//the speed at which pheromons degrade
+		float FoodDegration = 0.01f;	//the speed at which pheromons degrade
 
 		TileMap()
 		{
@@ -66,7 +67,10 @@ public:
 
 		void WriteToMap(uint16_t x, uint16_t y, tile Tile)	//write to tilemap using map coordinates
 		{
-			Ptr[x + (width * y)] = Tile;
+			if ((x > 0) && (y < height) && (x > 0) && (y < width))
+			{
+				Ptr[x + (width * y)] = Tile;
+			}
 		};
 		void WriteToMap_WC(float x, float y, tile Tile)	//write to tilemap using world coordinates
 		{
@@ -89,6 +93,11 @@ public:
 			if (y < height)
 			{
 				return Ptr[x + (width * y)];
+			}
+			else
+			{
+				tile temp;
+				return temp;
 			}
 		};
 
@@ -140,7 +149,7 @@ public:
 		uint8_t viewDistance = 6;
 		float FOV = M_PI;	//FOV of ant in radians
 		float WalkCurveFactor = 0.02f;
-		float pheromonAttraction = 0.005f;	//how strong the ant turns when it detects pheromons
+		float pheromonAttraction = 0.01f;	//how strong the ant turns when it detects pheromons
 
 		uint8_t state = SCOUTING;
 
@@ -163,6 +172,8 @@ public:
 	void MakeTileMap(uint16_t Width, uint16_t Height);
 
 	void drawTileMap();
+
+	void drawAnts();
 
 	void addAnt();
 

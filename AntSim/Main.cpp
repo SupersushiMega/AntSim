@@ -101,6 +101,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 		}
 	}
 	uint32_t i = 0;
+	for (i = 0; i < 100; i++)
+	{
+		colo.addAnt();
+	}
 
 	graphics->refresh();
 
@@ -112,15 +116,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 			DispatchMessage(&message);
 		}
 		colo.simulateStep();
-		if (i < 1000)
-		{
-			colo.addAnt();
-			i++;
-		}
 		if (1)
 		{
 			//graphics->Clear();
 			colo.drawTileMap();
+			colo.drawAnts();
 			graphics->refresh();
 		}
 	}

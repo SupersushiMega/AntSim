@@ -77,7 +77,10 @@ void Colony::Ant::placePheromone()
 		case SCOUTING:
 		{
 			tile temp = tilemap->ReadMap_WC(Coordinates.x, Coordinates.y);
-			temp.HomeStrength += 0.05f;
+			if (temp.HomeStrength < (1-0.08f))
+			{
+				temp.HomeStrength += 0.08f;
+			}
 			tilemap->WriteToMap_WC(Coordinates.x, Coordinates.y, temp);
 			break;
 		}
@@ -106,13 +109,30 @@ void Colony::Ant::checkArea()
 	tile temp2;
 	temp2.HomeStrength = 1;
 
-	tile temp;
+	tile ViewTile;	//Tile thats being viewed
+	tile CurTile;	//Tile the ant is curently standing on;
+
+	float headingDelta = 0.0f;
+	float headingDeltaMax = 0.1f;
+
+	bool hasTurned = false;
+	bool foundFood = false;
+
+	CurTile = tilemap->ReadMap_WC(Coordinates.x, Coordinates.y);	//read data
+
+	if ((CurTile.type == FOOD) && (state == SCOUTING))
+	{
+		state = TRANSPORTING_FOOD;
+		ViewTile.type = EMPTY;
+		tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), ViewTile);
+		heading += M_PI;
+	}
 
 	for (r = 4; r < viewDistance + 4; r++)
 	{
 		for (angle = -((float)FOV / 2); angle < ((float)FOV / 2); angle += 0.1f)
 		{
-			temp = tilemap->ReadMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r));	//read data
+			ViewTile = tilemap->ReadMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r));	//read data
 
 			float coloDistX = abs(Coordinates.x - parentCol->colonyX);
 			float coloDistY = abs(Coordinates.y - parentCol->colonyY);
@@ -122,12 +142,13 @@ void Colony::Ant::checkArea()
 			{
 				if (state == SCOUTING)
 				{
-					heading -= pheromonAttraction * temp.FoodStrength;
-					if (temp.type == FOOD)
+					if (ViewTile.type == FOOD)
 					{
-						state = TRANSPORTING_FOOD;
-						temp.type = EMPTY;
-						tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp);
+						headingDelta = -headingDeltaMax;
+					}
+					else
+					{
+						headingDelta -= pheromonAttraction * ViewTile.FoodStrength;
 					}
 				}
 				else if (state == TRANSPORTING_FOOD)
@@ -135,10 +156,11 @@ void Colony::Ant::checkArea()
 					if (coloDist < parentCol->colonySize)
 					{
 						state = SCOUTING;
+						parentCol->addAnt();
 					}
-					if (temp.HomeStrength != 0)
+					if (ViewTile.HomeStrength != 0)
 					{
-						heading -= pheromonAttraction * temp.HomeStrength;
+						headingDelta -= pheromonAttraction * ViewTile.HomeStrength;
 					}
 				}
 				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
@@ -147,12 +169,13 @@ void Colony::Ant::checkArea()
 			{
 				if (state == SCOUTING)
 				{
-					heading += pheromonAttraction * temp.FoodStrength;
-					if (temp.type == FOOD)
+					if (ViewTile.type == FOOD)
 					{
-						state = TRANSPORTING_FOOD;
-						temp.type = EMPTY;
-						tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp);
+						headingDelta = headingDeltaMax;
+					}
+					else
+					{
+						headingDelta += pheromonAttraction * ViewTile.FoodStrength;
 					}
 				}
 				else if (state == TRANSPORTING_FOOD)
@@ -160,19 +183,45 @@ void Colony::Ant::checkArea()
 					if (coloDist < parentCol->colonySize)
 					{
 						state = SCOUTING;
+						parentCol->addAnt();
 					}
-					if (temp.HomeStrength != 0)
+					if (ViewTile.HomeStrength != 0)
 					{
-						heading += pheromonAttraction * temp.HomeStrength;
+						headingDelta += pheromonAttraction * ViewTile.HomeStrength;
 					}
 				}
 				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
 			}
-			if (temp.type != EMPTY)
+			try
 			{
-				heading += M_PI;
+				if (ViewTile.type == SOLID && !hasTurned)
+				{
+					heading += M_PI;
+					hasTurned = true;
+				}
+			}
+			catch (const exception)
+			{
 			}
 		}
+	}
+	if (headingDelta > headingDeltaMax)
+	{
+		headingDelta = headingDeltaMax;
+	}
+	if (headingDelta < -headingDeltaMax)
+	{
+		headingDelta = -headingDeltaMax;
+	}
+	heading += headingDelta;
+}
+
+void Colony::drawAnts()
+{
+	Color col = { 1.0f, 1.0f, 1.0f };
+	for (uint32_t antID = 0; antID < Ants.size(); antID++)
+	{
+		graphics->imageBuff.PutPix(Ants[antID].Coordinates.x, Ants[antID].Coordinates.y, col);
 	}
 }
 
@@ -195,16 +244,15 @@ void Colony::simulateStep()
 		for (uint16_t y = 0; y <= tileMap.height; y++)
 		{
 			tile temp = tileMap.ReadMap(x, y);
-			if (temp.HomeStrength > 0)
+			if (temp.HomeStrength > tileMap.HomeDegration)
 			{
-				temp.HomeStrength -= tileMap.pheromonDegration;
-				tileMap.WriteToMap(x, y, temp);
+				temp.HomeStrength -= tileMap.HomeDegration;
 			}
-			if (temp.FoodStrength > 0)
+			if (temp.FoodStrength > tileMap.FoodDegration)
 			{
-				temp.FoodStrength -= tileMap.pheromonDegration;
-				tileMap.WriteToMap(x, y, temp);
+				temp.FoodStrength -= tileMap.FoodDegration;
 			}
+			tileMap.WriteToMap(x, y, temp);
 		}
 	}
 }
