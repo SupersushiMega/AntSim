@@ -29,13 +29,17 @@ void Colony::drawTileMap()
 		for (uint16_t y = 0; y <= tileMap.height; y++)
 		{
 			tile temp = tileMap.ReadMap(x, y);
-			if ((temp.FoodStrength > 0) || (temp.HomeStrength > 0))
+			if ((temp.FoodStrength > 0) || (temp.HomeStrength > 0) || temp.type != EMPTY)
 			{
 				for (uint16_t x2 = x * (TileSize.x + 1); x2 < (x + 1) * (TileSize.x + 1); x2++)
 				{
 					for (uint16_t y2 = y * (TileSize.y + 1); y2 < (y + 1) * (TileSize.y + 1); y2++)
 					{
-						Color PixCol = { 0.0f, temp.FoodStrength, temp.HomeStrength};
+						Color PixCol = { temp.FoodStrength, 0.0f, temp.HomeStrength};
+						if (temp.type = FOOD);
+						{
+							PixCol.g = 0.5f;
+						}
 						graphics->imageBuff.PutPix(x2, y2, PixCol);
 					}
 				}
@@ -139,6 +143,11 @@ void Colony::simulateStep()
 			if (temp.HomeStrength > 0)
 			{
 				temp.HomeStrength -= tileMap.pheromonDegration;
+				tileMap.WriteToMap(x, y, temp);
+			}
+			if (temp.FoodStrength > 0)
+			{
+				temp.FoodStrength -= tileMap.pheromonDegration;
 				tileMap.WriteToMap(x, y, temp);
 			}
 		}

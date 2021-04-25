@@ -1,5 +1,13 @@
 #include "Perlin.h"
 
+void Perlin1D::generateSeed()
+{
+	for (uint32_t i = 0; i < length; i++)
+	{
+		seed[i] = (float)(rand() % 100) / 100;	//generate seed;
+	}
+}
+
 void Perlin1D::generateNoise(uint8_t OctaveCount, float scaleBias)
 {
 	float noiseF = 0.0f;
@@ -39,6 +47,15 @@ void Perlin1D::generateNoise(uint8_t OctaveCount, float scaleBias)
 			}
 		}
 		noise[x] = noiseF / scaleAccuF;
+	}
+}
+
+
+void Perlin2D::generateSeed()
+{
+	for (uint64_t i = 0; i < (height * width); i++)
+	{
+		seed[i] = (float)(rand()) / (float)RAND_MAX;	//generate seed;
 	}
 }
 
@@ -85,9 +102,9 @@ void Perlin2D::generateNoise(uint8_t OctaveCount, float scaleBias)
 					blendFY = (float)(y - sampleY1) / (float)pitch;
 					
 					sampleF1 = ((1.0f - blendFX) * seed[sampleY1 * width + sampleX1]) + (blendFX * seed[sampleY1 * width + sampleX2]);
-					sampleF1 = ((1.0f - blendFX) * seed[sampleY2 * width + sampleX1]) + (blendFX * seed[sampleY2 * width + sampleX2]);
+					sampleF2 = ((1.0f - blendFX) * seed[sampleY2 * width + sampleX1]) + (blendFX * seed[sampleY2 * width + sampleX2]);
 
-					noiseF += (blendFY * (sampleF1 - sampleF2) + sampleF2) * scaleF;
+					noiseF += (blendFY * (sampleF2 - sampleF1) + sampleF1) * scaleF;
 					scaleAccuF += scaleF;
 					scaleF /= scaleBias;
 				}

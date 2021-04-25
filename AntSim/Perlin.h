@@ -12,10 +12,7 @@ public:
 		seed = new float[Length];
 		noise = new float[Length];
 		length = Length;
-		for (uint32_t i = 0; i < length; i++)
-		{
-			seed[i] = (float)(rand() % 100) / 100;	//generate seed;
-		}
+		generateSeed();
 	};
 
 	~Perlin1D()
@@ -27,6 +24,7 @@ public:
 		noise = nullptr;
 	};
 	
+	void generateSeed();
 	void generateNoise(uint8_t OctaveCount, float scaleBias = 2.0f);
 
 	float* seed = nullptr;
@@ -46,10 +44,7 @@ public:
 		noise = new float[Height * Width];
 		height = Height;
 		width = Width;
-		for (uint64_t i = 0; i < (Height * Width); i++)
-		{
-			seed[i] = (float)(rand()) / (float)RAND_MAX;	//generate seed;
-		}
+		generateSeed();
 	};
 
 	~Perlin2D()
@@ -61,6 +56,7 @@ public:
 		noise = nullptr;
 	};
 
+	void generateSeed();
 	void generateNoise(uint8_t OctaveCount, float scaleBias = 2.0f);
 
 	float* seed = nullptr;

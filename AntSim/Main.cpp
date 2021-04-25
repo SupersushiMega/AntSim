@@ -68,7 +68,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	Colony colo = Colony(graphics);
 
-	colo.MakeTileMap(1024, 800);
+	colo.MakeTileMap(512, 400);
 
 	for (uint32_t i = 0; i < 2000; i++)
 	{
@@ -79,25 +79,36 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	Color col = { 0.0f, 0.0f, 0.0f };
 
-	Perlin2D perlin(1024,800);
-	while (1)
-	{
-		//for (uint32_t i = 0; i < perlin.length; i++)
-		//{
-		//	perlin.seed[i] = (float)(rand()) / (float)RAND_MAX;
-		//}
-		perlin.generateNoise(24, 1.6f);
+	Perlin2D perlin(1024, 800);
+	perlin.generateSeed();
+	perlin.generateNoise(24, 1.4f);
 
-		for (uint16_t x = 0; x < 1024; x++)
+	for (uint16_t x = 0; x < 1024; x++)
+	{
+		for (uint16_t y = 0; y < 800; y++)
 		{
-			for (uint16_t y = 0; y < 800; y++)
+			col.r = perlin.noise[x + (y * perlin.width)];
+			graphics->imageBuff.PutPix(x, y, col);
+		}
+	}
+	graphics->refresh();
+	for (uint16_t x = 0; x < 1024; x++)
+	{
+		for (uint16_t y = 0; y < 800; y++)
+		{
+			float value = perlin.noise[x + (y * perlin.width)];
+			if(value > 0.5f)
 			{
-				col.r = perlin.noise[x + (y * perlin.width)];
-				graphics->imageBuff.PutPix(x, y, col);
+				tile temp;
+				temp = colo.tileMap.ReadMap_WC(x, y);
+				temp.type = FOOD;
+				colo.tileMap.WriteToMap_WC(x, y, temp);
 			}
 		}
-		graphics->refresh();
 	}
+	graphics->refresh();
+
+
 
 	while (!closeWindow)
 	{
