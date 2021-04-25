@@ -70,17 +70,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 
 	colo.MakeTileMap(1024, 800);
 
-	for (uint32_t i = 0; i < 1; i++)
-	{
-		colo.addAnt();
-	}
-
 	uint8_t frame = 0;
 
 	Color col = { 0.0f, 0.0f, 0.0f };
 
 	Perlin2D perlin(1024, 800);
-	perlin.generateSeed();
 	perlin.generateNoise(24, 1.4f);
 
 	for (uint16_t x = 0; x < 1024; x++)
@@ -97,7 +91,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 		for (uint16_t y = 0; y < 800; y++)
 		{
 			float value = perlin.noise[x + (y * perlin.width)];
-			if(value > 0.7f)
+			if(value > 0.45f)
 			{
 				tile temp;
 				temp = colo.tileMap.ReadMap_WC(x, y);
@@ -106,9 +100,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 			}
 		}
 	}
+	uint32_t i = 0;
+
 	graphics->refresh();
-
-
 
 	while (!closeWindow)
 	{
@@ -118,6 +112,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 			DispatchMessage(&message);
 		}
 		colo.simulateStep();
+		if (i < 1000)
+		{
+			colo.addAnt();
+			i++;
+		}
 		if (1)
 		{
 			//graphics->Clear();

@@ -39,6 +39,8 @@ public:
 	uint16_t colonyY;
 	uint16_t colonyX;
 
+	uint8_t colonySize = 20;
+
 	class TileMap
 	{
 	public:
@@ -47,7 +49,7 @@ public:
 		uint16_t height = 0;
 		Graphics* graphics = nullptr;
 
-		float pheromonDegration = 0.002f;	//the speed at which pheromons degrade
+		float pheromonDegration = 0.0001f;	//the speed at which pheromons degrade
 
 		TileMap()
 		{
@@ -135,9 +137,9 @@ public:
 		TileMap* tilemap;
 		Colony* parentCol;
 
-		uint8_t viewDistance = 4;
-		float FOV = M_PI / 1.3f;	//FOV of ant in radians
-		float WalkCurveFactor = 0.1f;
+		uint8_t viewDistance = 6;
+		float FOV = M_PI;	//FOV of ant in radians
+		float WalkCurveFactor = 0.02f;
 		float pheromonAttraction = 0.005f;	//how strong the ant turns when it detects pheromons
 
 		uint8_t state = SCOUTING;

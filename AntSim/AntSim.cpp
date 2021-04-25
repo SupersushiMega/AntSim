@@ -77,7 +77,7 @@ void Colony::Ant::placePheromone()
 		case SCOUTING:
 		{
 			tile temp = tilemap->ReadMap_WC(Coordinates.x, Coordinates.y);
-			temp.HomeStrength = 1;
+			temp.HomeStrength += 0.05f;
 			tilemap->WriteToMap_WC(Coordinates.x, Coordinates.y, temp);
 			break;
 		}
@@ -114,6 +114,10 @@ void Colony::Ant::checkArea()
 		{
 			temp = tilemap->ReadMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r));	//read data
 
+			float coloDistX = abs(Coordinates.x - parentCol->colonyX);
+			float coloDistY = abs(Coordinates.y - parentCol->colonyY);
+			float coloDist = sqrt((coloDistX * coloDistX) + (coloDistY * coloDistY));
+
 			if (angle < 0)
 			{
 				if (state == SCOUTING)
@@ -123,16 +127,19 @@ void Colony::Ant::checkArea()
 					{
 						state = TRANSPORTING_FOOD;
 						temp.type = EMPTY;
-						heading += M_PI;
+						tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp);
 					}
 				}
 				else if (state == TRANSPORTING_FOOD)
 				{
-					if ((uint16_t)((Coordinates.x + (sin(angle + heading) * r)) == parentCol->colonyX) && (uint16_t)((Coordinates.y + (cos(angle + heading) * r)) == parentCol->colonyX))
+					if (coloDist < parentCol->colonySize)
 					{
 						state = SCOUTING;
 					}
-					heading -= pheromonAttraction * temp.HomeStrength;
+					if (temp.HomeStrength != 0)
+					{
+						heading -= pheromonAttraction * temp.HomeStrength;
+					}
 				}
 				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
 			}
@@ -145,18 +152,25 @@ void Colony::Ant::checkArea()
 					{
 						state = TRANSPORTING_FOOD;
 						temp.type = EMPTY;
-						heading += M_PI;
+						tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp);
 					}
 				}
 				else if (state == TRANSPORTING_FOOD)
 				{
-					if ((uint16_t)((Coordinates.x + (sin(angle + heading) * r)) == parentCol->colonyX) && (uint16_t)((Coordinates.y + (cos(angle + heading) * r)) == parentCol->colonyX))
+					if (coloDist < parentCol->colonySize)
 					{
 						state = SCOUTING;
 					}
-					heading += pheromonAttraction * temp.HomeStrength;
+					if (temp.HomeStrength != 0)
+					{
+						heading += pheromonAttraction * temp.HomeStrength;
+					}
 				}
 				//tilemap->WriteToMap_WC(Coordinates.x + (sin(angle + heading) * r), Coordinates.y + (cos(angle + heading) * r), temp2);	//Debuging
+			}
+			if (temp.type != EMPTY)
+			{
+				heading += M_PI;
 			}
 		}
 	}
