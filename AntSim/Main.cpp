@@ -10,6 +10,7 @@
 #include "Perlin.h"
 
 
+
 Graphics* graphics;
 bool closeWindow = false;
 
@@ -102,7 +103,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 		}
 	}
 	uint32_t i = 0;
-	for (i = 0; i < 100; i++)
+	for (i = 0; i < 50; i++)
 	{
 		colo.addAnt();
 	}

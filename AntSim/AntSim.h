@@ -150,7 +150,7 @@ public:
 
 		uint8_t viewDistance = 6;
 		float FOV = M_PI;	//FOV of ant in radians
-		float WalkCurveFactor = 0.02f;
+		float WalkCurveFactor = 0.05f;
 		float pheromonAttraction = 0.01f;	//how strong the ant turns when it detects pheromons
 
 		uint8_t state = SCOUTING;
