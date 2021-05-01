@@ -8,7 +8,6 @@
 #include<thread>
 #include"Graphics.h"
 
-
 using namespace std;
 
 enum TileTypes
@@ -141,27 +140,36 @@ public:
 
 		~Ant()
 		{
-
+			graphics = nullptr;
+			tilemap = nullptr;
+			parentCol = nullptr;
 		}
 		
 		Graphics* graphics;
 		TileMap* tilemap;
 		Colony* parentCol;
 
-		uint8_t viewDistance = 6;
+		uint8_t viewDistance = 10;
 		float FOV = M_PI;	//FOV of ant in radians
-		float WalkCurveFactor = 0.05f;
-		float pheromonAttraction = 0.01f;	//how strong the ant turns when it detects pheromons
+		float WalkCurveFactor = 0.1f;
+		float pheromonAttraction = 0.005f;	//how strong the ant turns when it detects pheromons
+		float hungerRate = 0.03f;	//hunger loss per tick
+		float starvationRate = 0.1f;	//health loss per tick when hunger 0
 
 		uint8_t state = SCOUTING;
+		bool SawHomePhero = false;
 
 		uint8_t speed = 1;
 		float heading = 0; //heading in radians
 		vec2D Coordinates = { 0, 0 };
 
-		void AntMove();
-		void placePheromone();
-		void checkArea();
+		float hunger = 100.0f;
+		float health = 100.0f;
+
+		void AntMove();	//Move the ant
+		void placePheromone();	//place pheromone on tilemap
+		bool simulateNeeds();	//simulate hunger and health loss from hunger (returns a bool which indicates if ant should die)
+		void checkArea();	//check area in field of view for pheromon / tiletype and check if at colony
 
 	private:
 

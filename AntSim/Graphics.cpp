@@ -79,17 +79,39 @@ void Graphics::ImageBuff::PutPix(uint16_t x, uint16_t y, Color col)
 	uint32_t buffer = 0;
 	if (col.b > 0.0f)
 	{
-		buffer |= (uint32_t)(col.b * 255);
+		if (col.b <= 1)
+		{
+			buffer |= (uint32_t)(col.b * 255);
+		}
+		else
+		{
+			buffer |= 0xff;
+		}
 	}
 
 	if (col.g > 0.0f)
 	{
-		buffer |= ((uint32_t)(col.g * 255) << 8);
+		if (col.g <= 1)
+		{
+			buffer |= ((uint32_t)(col.g * 255) << 8);
+		}
+		else
+		{
+			buffer |= 0xff << 8;
+		}
 	}
 
 	if (col.r > 0.0f)
 	{
-		buffer |= ((uint32_t)(col.r * 255) << 16);
+		if (col.r <= 1)
+		{
+			buffer |= ((uint32_t)(col.r * 255) << 16);
+		}
+		else
+		{
+			buffer |= 0xff << 16;
+		}
+
 	}
 	//==========================================================================================================================
 	if ((x < width) && (y < height))

@@ -79,6 +79,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmd, int
 	Perlin2D perlin(1024, 800);
 	perlin.generateNoise(24, 1.4f);
 
+
 	for (uint16_t x = 0; x < 1024; x++)
 	{
 		for (uint16_t y = 0; y < 800; y++)

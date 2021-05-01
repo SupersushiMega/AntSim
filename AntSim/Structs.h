@@ -6,7 +6,10 @@ struct vec2D
 {
 	double x = 0;
 	double y = 0;
-
+	bool operator==(vec2D vec2)
+	{
+		return((x == vec2.x) && (y == vec2.y));
+	}
 };
 	
 struct Color
